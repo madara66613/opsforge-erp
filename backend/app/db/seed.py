@@ -1,17 +1,27 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from decimal import Decimal
 from uuid import UUID
 
 from sqlalchemy import select
 
 from app.core.config import get_settings
-from app.core.enums import AuditOutcome, StockMovementType, UserRole
+from app.core.enums import (
+    AuditOutcome,
+    PartnerType,
+    PurchaseOrderStatus,
+    SalesOrderStatus,
+    StockMovementType,
+    UserRole,
+)
 from app.core.security import hash_password
 from app.db.session import SessionLocal
 from app.models.audit_log import AuditLog
 from app.models.inventory import InventoryBalance, StockMovement
+from app.models.orders import PurchaseOrder, PurchaseOrderLine, SalesOrder, SalesOrderLine
+from app.models.partner import Partner
 from app.models.product import Product
 from app.models.user import User
 from app.models.warehouse import Warehouse
@@ -276,7 +286,157 @@ def seed_demo_inventory() -> None:
         session.commit()
 
 
+@dataclass(frozen=True)
+class DemoPartner:
+    id: UUID
+    code: str
+    name: str
+    partner_type: PartnerType
+    email: str
+
+
+DEMO_PARTNERS = (
+    DemoPartner(
+        UUID("60000000-0000-0000-0000-000000000001"),
+        "CUS-NORTH",
+        "Northstar Retail",
+        PartnerType.CUSTOMER,
+        "orders@northstar.example.com",
+    ),
+    DemoPartner(
+        UUID("60000000-0000-0000-0000-000000000002"),
+        "CUS-VISTULA",
+        "Vistula Office Tech",
+        PartnerType.CUSTOMER,
+        "procurement@vistula.example.com",
+    ),
+    DemoPartner(
+        UUID("60000000-0000-0000-0000-000000000003"),
+        "SUP-BALTIC",
+        "Baltic Components",
+        PartnerType.SUPPLIER,
+        "supply@baltic.example.com",
+    ),
+    DemoPartner(
+        UUID("60000000-0000-0000-0000-000000000004"),
+        "BOTH-NOVA",
+        "Nova Distribution",
+        PartnerType.BOTH,
+        "ops@nova.example.com",
+    ),
+)
+
+
+def seed_demo_orders() -> None:
+    settings = get_settings()
+    if settings.environment not in {"local", "test"}:
+        raise RuntimeError("Demo data can only be seeded in local or test environments")
+
+    with SessionLocal() as session:
+        admin = session.get(User, DEMO_USERS[0].id)
+        warehouse = session.get(Warehouse, DEMO_WAREHOUSES[0].id)
+        if admin is None or warehouse is None:
+            raise RuntimeError("Seed demo users and inventory before orders")
+
+        partner_by_code: dict[str, Partner] = {}
+        for demo_partner in DEMO_PARTNERS:
+            partner = session.scalar(select(Partner).where(Partner.code == demo_partner.code))
+            if partner is None:
+                partner = Partner(
+                    id=demo_partner.id,
+                    code=demo_partner.code,
+                    name=demo_partner.name,
+                    partner_type=demo_partner.partner_type,
+                    email=demo_partner.email,
+                    is_active=True,
+                )
+                session.add(partner)
+            partner_by_code[partner.code] = partner
+        session.flush()
+
+        sales_order = session.scalar(
+            select(SalesOrder).where(SalesOrder.order_number == "SO-DEMO-1001")
+        )
+        if sales_order is None:
+            sales_order = SalesOrder(
+                id=UUID("70000000-0000-0000-0000-000000000001"),
+                order_number="SO-DEMO-1001",
+                partner=partner_by_code["CUS-NORTH"],
+                warehouse=warehouse,
+                status=SalesOrderStatus.CONFIRMED,
+                notes="Demo order ready for completion",
+                created_by_user_id=admin.id,
+                confirmed_at=datetime(2026, 8, 1, 9, 0, tzinfo=UTC),
+            )
+            sales_order.lines = [
+                SalesOrderLine(
+                    id=UUID("71000000-0000-0000-0000-000000000001"),
+                    product_id=DEMO_PRODUCTS[0].id,
+                    quantity=Decimal("3"),
+                    unit_price=DEMO_PRODUCTS[0].sale_price,
+                ),
+                SalesOrderLine(
+                    id=UUID("71000000-0000-0000-0000-000000000002"),
+                    product_id=DEMO_PRODUCTS[3].id,
+                    quantity=Decimal("10"),
+                    unit_price=DEMO_PRODUCTS[3].sale_price,
+                ),
+            ]
+            session.add(sales_order)
+
+        purchase_order = session.scalar(
+            select(PurchaseOrder).where(PurchaseOrder.order_number == "PO-DEMO-2001")
+        )
+        if purchase_order is None:
+            purchase_order = PurchaseOrder(
+                id=UUID("80000000-0000-0000-0000-000000000001"),
+                order_number="PO-DEMO-2001",
+                partner=partner_by_code["SUP-BALTIC"],
+                warehouse=warehouse,
+                status=PurchaseOrderStatus.ORDERED,
+                notes="Demo replenishment ready to receive",
+                created_by_user_id=admin.id,
+                ordered_at=datetime(2026, 8, 2, 10, 0, tzinfo=UTC),
+            )
+            purchase_order.lines = [
+                PurchaseOrderLine(
+                    id=UUID("81000000-0000-0000-0000-000000000001"),
+                    product_id=DEMO_PRODUCTS[1].id,
+                    quantity=Decimal("8"),
+                    unit_cost=DEMO_PRODUCTS[1].purchase_price,
+                ),
+                PurchaseOrderLine(
+                    id=UUID("81000000-0000-0000-0000-000000000002"),
+                    product_id=DEMO_PRODUCTS[5].id,
+                    quantity=Decimal("20"),
+                    unit_cost=DEMO_PRODUCTS[5].purchase_price,
+                ),
+            ]
+            session.add(purchase_order)
+
+        orders_audit = session.scalar(
+            select(AuditLog).where(
+                AuditLog.action == "demo.seed",
+                AuditLog.entity_id == "orders-v1",
+            )
+        )
+        if orders_audit is None:
+            session.add(
+                AuditLog(
+                    id=UUID("50000000-0000-0000-0000-000000000002"),
+                    actor_user_id=admin.id,
+                    action="demo.seed",
+                    entity_type="system",
+                    entity_id="orders-v1",
+                    outcome=AuditOutcome.SUCCESS,
+                    details={"partners": len(DEMO_PARTNERS), "orders": 2},
+                )
+            )
+        session.commit()
+
+
 if __name__ == "__main__":
     seed_demo_users()
     seed_demo_inventory()
-    print("Seeded OpsForge ERP demo users and inventory.")
+    seed_demo_orders()
+    print("Seeded OpsForge ERP demo users, inventory, partners, and orders.")

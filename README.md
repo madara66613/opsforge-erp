@@ -25,6 +25,8 @@ Authentication is already implemented with Argon2 password hashes, revocable opa
 
 The inventory domain includes searchable products and warehouses, one balance per product/warehouse pair, and immutable receipt, issue, transfer, return, and adjustment movements. Stock-changing operations lock balances and commit atomically. See [the business rules](docs/business-rules.md) and [data model](docs/data-model.md).
 
+Partners, sales orders, and purchase orders are also implemented as explicit state machines. Completing a sale or receiving a purchase changes every order line, inventory balance, movement, and audit entry atomically; retry-safe endpoints prevent duplicate stock mutations. The dashboard summarizes operational counts, inventory value, pending sales value, recent orders, and recent movements.
+
 ## Quick start
 
 Prerequisites: Docker with Compose.

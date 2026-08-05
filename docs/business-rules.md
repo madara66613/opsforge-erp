@@ -32,5 +32,35 @@ This document defines the operational behavior enforced by OpsForge ERP. The API
 - Negative inventory is rejected by default. Only an admin may set `allow_negative_override=true`; that choice is preserved on the movement and highlighted in audit details.
 - Operators can execute normal movements. Support users have read-only visibility.
 
-Order-specific reservation, completion, receiving, and idempotency rules are documented when those workflows are introduced.
+## Partners
 
+- Partner codes are trimmed, normalized to uppercase, and unique.
+- Customers may be used on sales orders, suppliers on purchase orders, and `both` partners on either workflow.
+- Inactive partners remain available to historical records but cannot be selected for new orders.
+- Deactivation preserves orders, movements, and audit history.
+
+## Sales orders
+
+The supported lifecycle is `draft → confirmed → processing → completed`. A draft, confirmed, or processing order may be cancelled; completed and cancelled orders are terminal.
+
+- A sales order requires an active customer-compatible partner, an active warehouse, at least one active product, positive quantities, and non-negative unit prices.
+- A product may appear only once per order.
+- Completing an order issues every line from its warehouse and marks the order complete in one transaction.
+- If any line lacks stock, the entire completion rolls back: no balance, movement, or order status is partially changed.
+- Sales completion honors the normal negative-inventory policy; it does not expose the admin override used by manual stock adjustments.
+
+## Purchase orders
+
+The supported lifecycle is `draft → ordered → received`. A draft or ordered purchase may be cancelled; received and cancelled purchases are terminal.
+
+- A purchase order requires an active supplier-compatible partner, an active warehouse, at least one active product, positive quantities, and non-negative unit costs.
+- Receiving creates one stock receipt per line and marks the purchase received in one transaction.
+- A product may appear only once per order.
+
+## Idempotency and auditability
+
+- Stock-changing order endpoints require an `Idempotency-Key` between 8 and 128 characters.
+- Repeating the same operation, resource, actor, and key returns the completed result without creating duplicate movements.
+- Reusing a key for a different resource or request is rejected with a conflict.
+- The order row is locked before an idempotency claim and any balance mutations, making concurrent retries safe.
+- Every successful transition and every failed business attempt records its actor, request ID, outcome, and relevant reason in the audit log.

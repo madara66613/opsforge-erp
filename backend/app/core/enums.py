@@ -20,3 +20,24 @@ class StockMovementType(StrEnum):
     TRANSFER = "transfer"
     RETURN = "return"
     ADJUSTMENT = "adjustment"
+
+
+class PartnerType(StrEnum):
+    CUSTOMER = "customer"
+    SUPPLIER = "supplier"
+    BOTH = "both"
+
+
+class SalesOrderStatus(StrEnum):
+    DRAFT = "draft"
+    CONFIRMED = "confirmed"
+    PROCESSING = "processing"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+
+
+class PurchaseOrderStatus(StrEnum):
+    DRAFT = "draft"
+    ORDERED = "ordered"
+    RECEIVED = "received"
+    CANCELLED = "cancelled"
