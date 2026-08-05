@@ -27,6 +27,8 @@ The inventory domain includes searchable products and warehouses, one balance pe
 
 Partners, sales orders, and purchase orders are also implemented as explicit state machines. Completing a sale or receiving a purchase changes every order line, inventory balance, movement, and audit entry atomically; retry-safe endpoints prevent duplicate stock mutations. The dashboard summarizes operational counts, inventory value, pending sales value, recent orders, and recent movements.
 
+The React workspace provides a responsive, role-aware UI for the complete domain: dashboard, product catalog, inventory balances and movements, warehouses, partners, sales, purchases, audit history, user administration, and system diagnostics. Forms and workflow actions call the real API; support users see read-only operational views while administrative controls remain permission-gated.
+
 ## Quick start
 
 Prerequisites: Docker with Compose.

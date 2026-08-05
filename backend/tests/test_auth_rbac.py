@@ -55,6 +55,14 @@ def test_login_me_and_logout_use_revocable_hashed_sessions(
     assert stored_session is not None
     assert stored_session.token_hash == hash_session_token(token)
     assert stored_session.token_hash != token
+    login_audit = db_session.scalar(
+        select(AuditLog).where(
+            AuditLog.action == "auth.login",
+            AuditLog.outcome == AuditOutcome.SUCCESS,
+        )
+    )
+    assert login_audit is not None
+    assert login_audit.entity_id == str(stored_session.id)
     assert client.get("/api/v1/auth/me", headers=auth_header(token)).json()["role"] == "admin"
 
     logout_response = client.post("/api/v1/auth/logout", headers=auth_header(token))

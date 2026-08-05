@@ -33,4 +33,5 @@ def issue_session(session: Session, user: User, settings: Settings) -> tuple[str
         expires_at=expires_at,
     )
     session.add(token_session)
+    session.flush()
     return raw_token, token_session
