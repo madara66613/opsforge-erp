@@ -12,3 +12,11 @@ class UserRole(StrEnum):
 class AuditOutcome(StrEnum):
     SUCCESS = "success"
     FAILURE = "failure"
+
+
+class StockMovementType(StrEnum):
+    RECEIPT = "receipt"
+    SALE_ISSUE = "sale_issue"
+    TRANSFER = "transfer"
+    RETURN = "return"
+    ADJUSTMENT = "adjustment"

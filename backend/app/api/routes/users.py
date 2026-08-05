@@ -48,6 +48,7 @@ def create_user(
     session: DatabaseSession,
     auth: CanManageUsers,
 ) -> UserPublic:
+    actor_id = auth.user.id
     user = User(
         email=normalize_email(str(payload.email)),
         full_name=payload.full_name.strip(),
@@ -62,7 +63,7 @@ def create_user(
         session.rollback()
         record_audit_event(
             session,
-            actor_user_id=auth.user.id,
+            actor_user_id=actor_id,
             action="user.create",
             entity_type="user",
             outcome=AuditOutcome.FAILURE,
@@ -76,7 +77,7 @@ def create_user(
 
     record_audit_event(
         session,
-        actor_user_id=auth.user.id,
+        actor_user_id=actor_id,
         action="user.create",
         entity_type="user",
         entity_id=str(user.id),

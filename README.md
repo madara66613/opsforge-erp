@@ -23,6 +23,8 @@ The domain workflows and final ERP interface are implemented in subsequent revie
 
 Authentication is already implemented with Argon2 password hashes, revocable opaque bearer sessions, and backend-enforced permissions. See [the authorization model](docs/authorization.md).
 
+The inventory domain includes searchable products and warehouses, one balance per product/warehouse pair, and immutable receipt, issue, transfer, return, and adjustment movements. Stock-changing operations lock balances and commit atomically. See [the business rules](docs/business-rules.md) and [data model](docs/data-model.md).
+
 ## Quick start
 
 Prerequisites: Docker with Compose.
