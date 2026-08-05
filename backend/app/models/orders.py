@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 from uuid import UUID
 
 from sqlalchemy import (
     CheckConstraint,
+    Date,
     DateTime,
     Enum,
     ForeignKey,
@@ -129,6 +130,7 @@ class PurchaseOrder(UuidPrimaryKeyMixin, TimestampMixin, Base):
     )
     currency: Mapped[str] = mapped_column(String(3), default="PLN", nullable=False)
     notes: Mapped[str | None] = mapped_column(Text)
+    expected_delivery_date: Mapped[date | None] = mapped_column(Date)
     created_by_user_id: Mapped[UUID] = mapped_column(
         ForeignKey("users.id", ondelete="RESTRICT"), index=True, nullable=False
     )

@@ -37,6 +37,7 @@ export interface Product {
   unit: string
   sale_price: string
   purchase_price: string
+  reorder_threshold: string
   is_active: boolean
   created_at: string
   updated_at: string
@@ -138,6 +139,7 @@ export interface PurchaseOrder {
   status: PurchaseStatus
   currency: string
   notes: string | null
+  expected_delivery_date: string | null
   created_by_user_id: string
   ordered_at: string | null
   received_at: string | null
@@ -196,4 +198,10 @@ export interface VersionInfo {
   name: string
   version: string
   environment: string
+}
+
+export interface ProductImportSummary {
+  rows_received: number
+  products_created: number
+  created_skus: string[]
 }

@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from app.api.routes.audit_logs import router as audit_logs_router
 from app.api.routes.auth import router as auth_router
+from app.api.routes.csv_transfer import router as csv_transfer_router
 from app.api.routes.dashboard import router as dashboard_router
 from app.api.routes.inventory import router as inventory_router
 from app.api.routes.orders import router as orders_router
@@ -20,3 +21,4 @@ api_router.include_router(inventory_router)
 api_router.include_router(partners_router)
 api_router.include_router(orders_router)
 api_router.include_router(dashboard_router)
+api_router.include_router(csv_transfer_router)

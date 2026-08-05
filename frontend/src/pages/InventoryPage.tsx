@@ -4,7 +4,7 @@ import { useAuth } from '../auth/useAuth'
 import { Icon } from '../components/Icon'
 import { Button, EmptyState, ErrorState, Field, LoadingState, Modal, PageHeader, Panel, SearchBox, StatusBadge, TableMeta } from '../components/ui'
 import { useApiResource } from '../hooks/useApiResource'
-import { api, errorMessage } from '../lib/api'
+import { api, downloadCsv, errorMessage } from '../lib/api'
 import { dateTime, quantity, titleCase } from '../lib/format'
 import { can } from '../lib/permissions'
 import type { InventoryBalance, ListResponse, MovementType, Product, StockMovement, Warehouse } from '../types'
@@ -25,6 +25,7 @@ export function InventoryPage() {
   const [busy, setBusy] = useState(false)
   const [formError, setFormError] = useState('')
   const writable = Boolean(user && can(user.role, 'inventory.write'))
+  const exportable = Boolean(user && can(user.role, 'csv.export'))
   const canManageWarehouses = writable
 
   const filteredBalances = useMemo(() => balances.data?.items.filter((item) => `${item.product.sku} ${item.product.name} ${item.warehouse.code}`.toLowerCase().includes(search.toLowerCase())) ?? [], [balances.data, search])
@@ -55,9 +56,15 @@ export function InventoryPage() {
     } catch (reason) { setFormError(errorMessage(reason)) } finally { setBusy(false) }
   }
 
+  async function exportCsv() {
+    setFormError('')
+    try { await downloadCsv('/csv/inventory/export', token, 'opsforge-inventory.csv') }
+    catch (reason) { setFormError(errorMessage(reason)) }
+  }
+
   const activeResource = tab === 'balances' ? balances : tab === 'movements' ? movements : warehouses
   return <>
-    <PageHeader eyebrow="Stock control" title="Inventory" description="See every balance and movement across your warehouse network." actions={<>{tab === 'warehouses' && canManageWarehouses && <Button variant="secondary" onClick={() => { setFormError(''); setWarehouseModal(true) }}><Icon name="plus"/> Warehouse</Button>}{writable && <Button onClick={() => { setFormError(''); setMovementModal(true) }}><Icon name="plus"/> Stock movement</Button>}</>} />
+    <PageHeader eyebrow="Stock control" title="Inventory" description="See every balance and movement across your warehouse network." actions={<>{exportable && <Button variant="secondary" onClick={() => void exportCsv()}>Export CSV</Button>}{tab === 'warehouses' && canManageWarehouses && <Button variant="secondary" onClick={() => { setFormError(''); setWarehouseModal(true) }}><Icon name="plus"/> Warehouse</Button>}{writable && <Button onClick={() => { setFormError(''); setMovementModal(true) }}><Icon name="plus"/> Stock movement</Button>}</>} />
     <Panel>
       <div className="tab-bar"><div><button className={tab === 'balances' ? 'active' : ''} onClick={() => { setTab('balances'); setSearch('') }}>Balances</button><button className={tab === 'movements' ? 'active' : ''} onClick={() => { setTab('movements'); setSearch('') }}>Movement ledger</button><button className={tab === 'warehouses' ? 'active' : ''} onClick={() => { setTab('warehouses'); setSearch('') }}>Warehouses</button></div></div>
       <div className="table-toolbar"><SearchBox value={search} onChange={setSearch} placeholder={`Search ${tab}`}/><TableMeta total={tab === 'balances' ? filteredBalances.length : tab === 'movements' ? filteredMovements.length : filteredWarehouses.length} noun={tab === 'balances' ? 'balance' : tab === 'movements' ? 'movement' : 'warehouse'}/></div>

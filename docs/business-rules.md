@@ -8,6 +8,7 @@ This document defines the operational behavior enforced by OpsForge ERP. The API
 - Sale and purchase prices use fixed-precision decimal values and cannot be negative.
 - Inactive products remain visible for historical records but cannot participate in new stock movements.
 - Product deactivation does not delete inventory or movement history.
+- Each product has a non-negative reorder threshold. A warehouse balance at or below that product-specific threshold is low stock.
 
 ## Warehouses and balances
 
@@ -64,3 +65,11 @@ The supported lifecycle is `draft → ordered → received`. A draft or ordered 
 - Reusing a key for a different resource or request is rejected with a conflict.
 - The order row is locked before an idempotency claim and any balance mutations, making concurrent retries safe.
 - Every successful transition and every failed business attempt records its actor, request ID, outcome, and relevant reason in the audit log.
+
+## CSV transfer
+
+- Product import validates the exact header contract and every row before opening the write phase.
+- An invalid header, value, duplicate SKU, or database conflict rejects the full import; partial product creation is not allowed.
+- Imported products receive a zero balance for each existing warehouse in the same transaction.
+- Product and inventory exports are available to read-only support users; import remains an admin/operator write capability.
+- Audit metadata records row counts and outcomes but never stores uploaded file contents.

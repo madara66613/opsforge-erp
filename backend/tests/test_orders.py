@@ -200,10 +200,12 @@ def test_purchase_receipt_is_atomic_and_idempotent(client: TestClient, db_sessio
         json={
             "partner_id": supplier["id"],
             "warehouse_id": warehouse["id"],
+            "expected_delivery_date": "2026-08-20",
             "lines": [{"product_id": product["id"], "quantity": "5"}],
         },
     )
     assert created.status_code == 201
+    assert created.json()["expected_delivery_date"] == "2026-08-20"
     order_id = created.json()["id"]
     assert (
         client.post(f"/api/v1/purchase-orders/{order_id}/order", headers=headers(token)).json()[

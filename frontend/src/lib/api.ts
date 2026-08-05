@@ -29,11 +29,51 @@ export async function api<T>(path: string, options: ApiOptions = {}): Promise<T>
     body: options.body === undefined ? undefined : JSON.stringify(options.body),
   })
   if (!response.ok) {
-    const payload = (await response.json().catch(() => null)) as { detail?: string } | null
-    throw new ApiError(payload?.detail ?? `Request failed with status ${response.status}`, response.status)
+    throw await responseError(response)
   }
   if (response.status === 204) return undefined as T
   return (await response.json()) as T
+}
+
+export async function uploadCsv<T>(path: string, token: string, file: File): Promise<T> {
+  const response = await fetch(`${API_ROOT}${path}`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'text/csv',
+    },
+    body: await file.text(),
+  })
+  if (!response.ok) throw await responseError(response)
+  return response.json() as Promise<T>
+}
+
+export async function downloadCsv(path: string, token: string, filename: string): Promise<void> {
+  const response = await fetch(`${API_ROOT}${path}`, {
+    headers: { Accept: 'text/csv', Authorization: `Bearer ${token}` },
+  })
+  if (!response.ok) throw await responseError(response)
+  const url = URL.createObjectURL(await response.blob())
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = filename
+  anchor.click()
+  URL.revokeObjectURL(url)
+}
+
+async function responseError(response: Response): Promise<ApiError> {
+  const payload = (await response.json().catch(() => null)) as {
+    detail?: string | { message?: string; errors?: Array<{ row: number; field: string; message: string }> }
+  } | null
+  const detail = payload?.detail
+  if (typeof detail === 'string') return new ApiError(detail, response.status)
+  if (detail?.message) {
+    const first = detail.errors?.[0]
+    const context = first ? ` Row ${first.row}, ${first.field}: ${first.message}` : ''
+    return new ApiError(`${detail.message}.${context}`, response.status)
+  }
+  return new ApiError(`Request failed with status ${response.status}`, response.status)
 }
 
 export function login(email: string, password: string): Promise<Session> {

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from uuid import UUID
 
@@ -395,6 +395,7 @@ def seed_demo_orders() -> None:
                 warehouse=warehouse,
                 status=PurchaseOrderStatus.ORDERED,
                 notes="Demo replenishment ready to receive",
+                expected_delivery_date=date(2026, 8, 10),
                 created_by_user_id=admin.id,
                 ordered_at=datetime(2026, 8, 2, 10, 0, tzinfo=UTC),
             )

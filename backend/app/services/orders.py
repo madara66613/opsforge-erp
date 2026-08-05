@@ -128,6 +128,7 @@ def create_purchase_order(
         warehouse=warehouse,
         status=PurchaseOrderStatus.DRAFT,
         notes=payload.notes.strip() if payload.notes else None,
+        expected_delivery_date=payload.expected_delivery_date,
         created_by_user_id=actor_user_id,
     )
     order.lines = [
@@ -349,6 +350,7 @@ def purchase_order_public(order: PurchaseOrder) -> PurchaseOrderPublic:
         status=order.status,
         currency=order.currency,
         notes=order.notes,
+        expected_delivery_date=order.expected_delivery_date,
         created_by_user_id=order.created_by_user_id,
         ordered_at=order.ordered_at,
         received_at=order.received_at,

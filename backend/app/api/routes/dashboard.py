@@ -57,7 +57,15 @@ def dashboard_summary(
         PurchaseOrder,
         PurchaseOrder.status.in_([PurchaseOrderStatus.DRAFT, PurchaseOrderStatus.ORDERED]),
     )
-    low_stock = _count(session, InventoryBalance, InventoryBalance.quantity <= Decimal("5"))
+    low_stock = int(
+        session.scalar(
+            select(func.count())
+            .select_from(InventoryBalance)
+            .join(Product, Product.id == InventoryBalance.product_id)
+            .where(InventoryBalance.quantity <= Product.reorder_threshold)
+        )
+        or 0
+    )
 
     inventory_value = session.scalar(
         select(func.coalesce(func.sum(InventoryBalance.quantity * Product.purchase_price), 0))

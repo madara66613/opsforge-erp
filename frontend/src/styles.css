@@ -194,7 +194,10 @@ td strong { color: #283733; font-size: 10px; }
 .inline-empty { margin: 0; padding: 36px 22px; color: #84928e; font-size: 10px; text-align: center; }
 .inline-alert, .form-error { color: #a54444; border: 1px solid #f0cccc; border-radius: 8px; background: #fff3f3; font-size: 10px; }
 .inline-alert { margin: 12px 17px; padding: 10px 12px; }
+.inline-success { margin: 12px 17px; padding: 10px 12px; color: #126f59; border: 1px solid #bfe4d9; border-radius: 8px; background: #edf9f5; font-size: 10px; }
 .form-error { display: flex; align-items: center; gap: 8px; padding: 10px 11px; }
+.file-button { cursor: pointer; }
+.file-button input { display: none; }
 .detail-code { display: block; max-width: 250px; overflow: hidden; color: #61716d; font-family: var(--mono); font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
 
 /* Forms and modal */

@@ -14,6 +14,7 @@ class Product(UuidPrimaryKeyMixin, TimestampMixin, Base):
     __table_args__ = (
         CheckConstraint("sale_price >= 0", name="ck_products_sale_price_nonnegative"),
         CheckConstraint("purchase_price >= 0", name="ck_products_purchase_price_nonnegative"),
+        CheckConstraint("reorder_threshold >= 0", name="ck_products_reorder_threshold_nonnegative"),
         Index("ix_products_name", "name"),
         Index("ix_products_active_name", "is_active", "name"),
     )
@@ -27,5 +28,8 @@ class Product(UuidPrimaryKeyMixin, TimestampMixin, Base):
     )
     purchase_price: Mapped[Decimal] = mapped_column(
         Numeric(12, 2), default=Decimal("0"), nullable=False
+    )
+    reorder_threshold: Mapped[Decimal] = mapped_column(
+        Numeric(14, 3), default=Decimal("5"), nullable=False
     )
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)

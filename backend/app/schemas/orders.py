@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 from uuid import UUID
 
@@ -40,6 +40,7 @@ class SalesOrderCreate(BaseModel):
 class PurchaseOrderCreate(BaseModel):
     partner_id: UUID
     warehouse_id: UUID
+    expected_delivery_date: date | None = None
     notes: str | None = Field(default=None, max_length=4000)
     lines: list[PurchaseOrderLineCreate] = Field(min_length=1, max_length=100)
 
@@ -98,6 +99,7 @@ class PurchaseOrderPublic(BaseModel):
     status: PurchaseOrderStatus
     currency: str
     notes: str | None
+    expected_delivery_date: date | None
     created_by_user_id: UUID
     ordered_at: datetime | None
     received_at: datetime | None

@@ -50,6 +50,7 @@ erDiagram
         string name
         decimal sale_price
         decimal purchase_price
+        decimal reorder_threshold
     }
     WAREHOUSE {
         uuid id PK
@@ -98,6 +99,7 @@ erDiagram
         uuid partner_id FK
         uuid warehouse_id FK
         string status
+        date expected_delivery_date
     }
     PURCHASE_ORDER_LINE {
         uuid id PK

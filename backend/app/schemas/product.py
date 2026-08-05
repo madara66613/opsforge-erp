@@ -15,6 +15,7 @@ class ProductBase(BaseModel):
     unit: str = Field(default="pcs", min_length=1, max_length=24)
     sale_price: Decimal = Field(default=Decimal("0"), ge=0, max_digits=12, decimal_places=2)
     purchase_price: Decimal = Field(default=Decimal("0"), ge=0, max_digits=12, decimal_places=2)
+    reorder_threshold: Decimal = Field(default=Decimal("5"), ge=0, max_digits=14, decimal_places=3)
     is_active: bool = True
 
     @field_validator("sku")
@@ -39,6 +40,7 @@ class ProductUpdate(BaseModel):
     unit: str | None = Field(default=None, min_length=1, max_length=24)
     sale_price: Decimal | None = Field(default=None, ge=0, max_digits=12, decimal_places=2)
     purchase_price: Decimal | None = Field(default=None, ge=0, max_digits=12, decimal_places=2)
+    reorder_threshold: Decimal | None = Field(default=None, ge=0, max_digits=14, decimal_places=3)
     is_active: bool | None = None
 
     @field_validator("sku")
