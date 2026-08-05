@@ -98,7 +98,11 @@ def list_inventory(
         InventoryBalancePublic(
             id=balance.id,
             product=ProductReference(
-                id=product.id, sku=product.sku, name=product.name, unit=product.unit
+                id=product.id,
+                sku=product.sku,
+                name=product.name,
+                unit=product.unit,
+                reorder_threshold=product.reorder_threshold,
             ),
             warehouse=WarehouseReference(id=warehouse.id, code=warehouse.code, name=warehouse.name),
             quantity=balance.quantity,

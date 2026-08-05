@@ -58,6 +58,7 @@ export interface ProductReference {
   sku: string
   name: string
   unit: string
+  reorder_threshold: string
 }
 
 export interface WarehouseReference {
@@ -180,6 +181,7 @@ export interface DashboardSummary {
     quantity: string
     created_at: string
   }>
+  recent_audit_events: Array<Pick<AuditEvent, 'id' | 'action' | 'entity_type' | 'outcome' | 'created_at'>>
 }
 
 export interface AuditEvent {

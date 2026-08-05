@@ -44,6 +44,7 @@ jobs:
       - run: ruff format --check .
       - run: mypy app
       - run: alembic upgrade head
+      - run: alembic check
       - run: pytest --cov=app --cov-report=term-missing
 
   frontend:
@@ -63,4 +64,3 @@ jobs:
       - run: npm run typecheck
       - run: npm run test -- --run
       - run: npm run build
-

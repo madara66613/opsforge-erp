@@ -296,3 +296,11 @@ def test_dashboard_summarizes_operational_state(client: TestClient, db_session: 
     assert Decimal(data["pending_sales_value"]) == Decimal("50")
     assert len(data["recent_sales_orders"]) == 1
     assert len(data["recent_movements"]) == 1
+    assert data["recent_audit_events"] == []
+
+    admin = add_user(db_session, "admin.dashboard@example.com", UserRole.ADMIN)
+    admin_token = token_for(client, admin)
+    admin_dashboard = client.get("/api/v1/dashboard/summary", headers=headers(admin_token)).json()
+    assert admin_dashboard["recent_audit_events"]
+    assert admin_dashboard["recent_audit_events"][0]["action"] == "auth.login"
+    assert admin_dashboard["recent_audit_events"][0]["outcome"] == "success"

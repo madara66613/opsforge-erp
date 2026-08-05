@@ -244,6 +244,7 @@ td strong { color: #283733; font-size: 10px; }
 .metric-card small { color: #91a09c; font-size: 8px; }
 .dashboard-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, .48fr); gap: 14px; }
 .dashboard-grid .span-two { min-width: 0; }
+.dashboard-grid .span-full { min-width: 0; grid-column: 1 / -1; }
 .compact-list { padding: 5px 0; }
 .order-row { display: grid; grid-template-columns: 35px minmax(120px, 1fr) auto minmax(115px, auto); gap: 12px; align-items: center; min-height: 64px; padding: 8px 20px; border-bottom: 1px solid #edf1f0; }
 .order-row:last-child { border-bottom: 0; }
@@ -276,6 +277,15 @@ td strong { color: #283733; font-size: 10px; }
 .purchase-stack > a > div:first-child { margin-bottom: 8px; }
 .purchase-stack strong { font-size: 9px; }
 .purchase-stack small { color: #85938f; font-size: 8px; }
+.audit-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 6px 14px 12px; }
+.audit-summary-row { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 11px; align-items: center; min-height: 58px; padding: 8px; border-bottom: 1px solid #edf1f0; }
+.audit-summary-row:nth-last-child(-n + 2) { border-bottom: 0; }
+.audit-summary-row:hover { background: #fbfcfc; }
+.audit-summary-row strong, .audit-summary-row small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.audit-summary-row strong { font-family: var(--mono); font-size: 9px; }
+.audit-summary-row small { margin-top: 3px; color: #8a9793; font-size: 8px; }
+.audit-summary-mark { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 8px; color: #16755e; background: #e7f5f1; }
+.audit-summary-mark.failure { color: #a25151; background: #f9eaea; }
 
 /* Orders, users, system */
 .clickable-row { cursor: pointer; }
@@ -372,6 +382,9 @@ td strong { color: #283733; font-size: 10px; }
   .page-actions { width: 100%; }
   .page-actions .button { flex: 1; }
   .metric-grid { grid-template-columns: 1fr; }
+  .audit-summary { grid-template-columns: 1fr; }
+  .audit-summary-row { border-bottom: 1px solid #edf1f0; }
+  .audit-summary-row:last-child { border-bottom: 0; }
   .metric-card { min-height: 100px; }
   .filter-row, .table-toolbar { align-items: stretch; flex-wrap: wrap; }
   .search-box { width: 100%; }

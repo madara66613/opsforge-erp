@@ -44,6 +44,7 @@ export function OrdersPage({ kind }: { kind: Kind }) {
   }
 
   async function transition(order: Order, action: string, idempotent = false) {
+    if (action === 'cancel' && !window.confirm(`Cancel ${order.order_number}? This moves the order to a final state.`)) return
     setBusy(`${order.id}:${action}`); setFormError('')
     try {
       await api(`${config.listPath}/${order.id}/${action}`, { method: 'POST', token, headers: idempotent ? { 'Idempotency-Key': crypto.randomUUID() } : undefined })

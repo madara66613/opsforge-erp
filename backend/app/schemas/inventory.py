@@ -14,6 +14,7 @@ class ProductReference(BaseModel):
     sku: str
     name: str
     unit: str
+    reorder_threshold: Decimal
 
 
 class WarehouseReference(BaseModel):

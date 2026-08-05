@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     )
 
     app_name: str = "OpsForge ERP"
-    app_version: str = "0.1.0"
+    app_version: str = "1.0.0"
     environment: str = "local"
     database_url: str = "postgresql+psycopg://opsforge:opsforge_local_only@localhost:5432/opsforge"
     secret_key: SecretStr = SecretStr("replace-this-local-development-secret")

@@ -22,6 +22,7 @@ const dashboard = {
   recent_sales_orders: [],
   recent_purchase_orders: [],
   recent_movements: [],
+  recent_audit_events: [],
 }
 
 describe('OpsForge application', () => {

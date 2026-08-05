@@ -171,6 +171,7 @@ def test_receipt_transfer_and_issue_update_balances_atomically(
         headers=headers(token),
     ).json()["items"]
     assert sorted(Decimal(item["quantity"]) for item in balances) == [Decimal("2.5"), Decimal("6")]
+    assert all(item["product"]["reorder_threshold"] == "5.000" for item in balances)
     assert db_session.scalar(select(func.count()).select_from(StockMovement)) == 3
 
 

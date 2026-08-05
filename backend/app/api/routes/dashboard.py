@@ -10,9 +10,10 @@ from sqlalchemy.sql.elements import ColumnElement
 
 from app.api.dependencies import AuthContext, require_permission
 from app.core.enums import PurchaseOrderStatus, SalesOrderStatus
-from app.core.permissions import Permission
+from app.core.permissions import Permission, has_permission
 from app.db.base import Base
 from app.db.session import get_db
+from app.models.audit_log import AuditLog
 from app.models.inventory import InventoryBalance, StockMovement
 from app.models.orders import PurchaseOrder, SalesOrder, SalesOrderLine
 from app.models.partner import Partner
@@ -21,6 +22,7 @@ from app.models.warehouse import Warehouse
 from app.schemas.dashboard import (
     DashboardCounts,
     DashboardSummary,
+    RecentAuditEvent,
     RecentMovement,
     RecentOrder,
 )
@@ -40,7 +42,7 @@ CanReadDashboard = Annotated[AuthContext, Depends(require_permission(Permission.
 @router.get("/summary", response_model=DashboardSummary)
 def dashboard_summary(
     session: DatabaseSession,
-    _auth: CanReadDashboard,
+    auth: CanReadDashboard,
 ) -> DashboardSummary:
     active_products = _count(session, Product, Product.is_active.is_(True))
     active_warehouses = _count(session, Warehouse, Warehouse.is_active.is_(True))
@@ -106,6 +108,11 @@ def dashboard_summary(
         .order_by(StockMovement.created_at.desc())
         .limit(8)
     )
+    recent_audits = (
+        list(session.scalars(select(AuditLog).order_by(AuditLog.created_at.desc()).limit(5)))
+        if has_permission(auth.user.role, Permission.AUDIT_READ)
+        else []
+    )
 
     return DashboardSummary(
         counts=DashboardCounts(
@@ -134,6 +141,16 @@ def dashboard_summary(
                 created_at=movement.created_at,
             )
             for movement, sku, warehouse_code in movement_rows
+        ],
+        recent_audit_events=[
+            RecentAuditEvent(
+                id=event.id,
+                action=event.action,
+                entity_type=event.entity_type,
+                outcome=event.outcome,
+                created_at=event.created_at,
+            )
+            for event in recent_audits
         ],
     )
 

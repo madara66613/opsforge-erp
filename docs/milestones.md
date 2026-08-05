@@ -9,6 +9,6 @@ This checklist is the reviewable execution record for OpsForge ERP.
 - [x] Milestone 3 — partners, sales orders, purchase orders, idempotency, dashboard
 - [x] Milestone 4 — complete permission-aware React application
 - [x] Milestone 5 — CSV workflows, support documentation, full automated test suite, E2E
-- [ ] Milestone 6 — verification, screenshots, documentation polish, release
+- [x] Milestone 6 — verification, screenshots, documentation polish, release
 
 Each milestone is developed in a focused branch with conventional commits. GitHub pull requests provide review context and CI evidence.

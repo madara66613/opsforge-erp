@@ -6,7 +6,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from app.core.enums import PurchaseOrderStatus, SalesOrderStatus, StockMovementType
+from app.core.enums import AuditOutcome, PurchaseOrderStatus, SalesOrderStatus, StockMovementType
 
 
 class DashboardCounts(BaseModel):
@@ -36,6 +36,14 @@ class RecentMovement(BaseModel):
     created_at: datetime
 
 
+class RecentAuditEvent(BaseModel):
+    id: UUID
+    action: str
+    entity_type: str
+    outcome: AuditOutcome
+    created_at: datetime
+
+
 class DashboardSummary(BaseModel):
     counts: DashboardCounts
     inventory_value: Decimal
@@ -43,3 +51,4 @@ class DashboardSummary(BaseModel):
     recent_sales_orders: list[RecentOrder]
     recent_purchase_orders: list[RecentOrder]
     recent_movements: list[RecentMovement]
+    recent_audit_events: list[RecentAuditEvent]

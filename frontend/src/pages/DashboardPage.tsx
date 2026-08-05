@@ -5,6 +5,7 @@ import { Icon } from '../components/Icon'
 import { ErrorState, LoadingState, PageHeader, Panel, StatusBadge } from '../components/ui'
 import { useApiResource } from '../hooks/useApiResource'
 import { dateTime, money, quantity, titleCase } from '../lib/format'
+import { can } from '../lib/permissions'
 import type { DashboardSummary } from '../types'
 
 export function DashboardPage() {
@@ -18,7 +19,7 @@ export function DashboardPage() {
         <Metric icon="package" label="Inventory value" value={money(data.inventory_value)} trend={`${data.counts.active_products} active products`} tone="mint" />
         <Metric icon="sales" label="Pending sales" value={money(data.pending_sales_value)} trend={`${data.counts.pending_sales_orders} orders in progress`} tone="blue" />
         <Metric icon="purchases" label="Open purchases" value={String(data.counts.pending_purchase_orders)} trend="Awaiting receipt" tone="violet" />
-        <Metric icon="alert" label="Low stock" value={String(data.counts.low_stock_balances)} trend="Balances at or below 5" tone={data.counts.low_stock_balances > 0 ? 'amber' : 'mint'} />
+        <Metric icon="alert" label="Low stock" value={String(data.counts.low_stock_balances)} trend="Product-specific thresholds" tone={data.counts.low_stock_balances > 0 ? 'amber' : 'mint'} />
       </section>
       <section className="dashboard-grid">
         <Panel className="span-two">
@@ -37,6 +38,10 @@ export function DashboardPage() {
           <div className="panel-heading"><div><p className="section-kicker">Inbound</p><h2>Recent purchases</h2></div></div>
           <div className="purchase-stack">{data.recent_purchase_orders.slice(0, 4).map((order) => <Link href="/purchases" key={order.id}><div><strong>{order.order_number}</strong><small>{order.partner_name}</small></div><div><StatusBadge value={order.status}/><strong>{money(order.total_amount)}</strong></div></Link>)}{data.recent_purchase_orders.length === 0 && <p className="inline-empty">No purchases yet.</p>}</div>
         </Panel>
+        {user && can(user.role, 'audit.read') && <Panel className="span-full">
+          <div className="panel-heading"><div><p className="section-kicker">Traceability</p><h2>Recent audit events</h2></div><Link href="/audit" className="text-link">Open audit log <span>→</span></Link></div>
+          <div className="audit-summary">{data.recent_audit_events.map((event) => <Link href="/audit" className="audit-summary-row" key={event.id}><span className={`audit-summary-mark ${event.outcome}`}><Icon name="audit"/></span><span><strong>{event.action}</strong><small>{titleCase(event.entity_type)} · {dateTime(event.created_at)}</small></span><StatusBadge value={event.outcome}/></Link>)}{data.recent_audit_events.length === 0 && <p className="inline-empty">No audit events yet.</p>}</div>
+        </Panel>}
       </section>
     </>}
   </>

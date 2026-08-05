@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "opsforge-erp-backend"
-version = "0.1.0"
+version = "1.0.0"
 description = "FastAPI backend for the fictional OpsForge ERP portfolio project"
 readme = { text = "FastAPI backend for the fictional OpsForge ERP portfolio project.", content-type = "text/markdown" }
 requires-python = ">=3.12"
