@@ -4,7 +4,7 @@ This checklist is the reviewable execution record for OpsForge ERP.
 
 - [x] Repository initialization
 - [x] Milestone 0 — foundation, Compose, CI, health checks, structured logging
-- [ ] Milestone 1 — authentication, roles, permissions, audit foundation
+- [x] Milestone 1 — authentication, roles, permissions, audit foundation
 - [ ] Milestone 2 — products, warehouses, inventory balances, stock movements
 - [ ] Milestone 3 — partners, sales orders, purchase orders, idempotency, dashboard
 - [ ] Milestone 4 — complete permission-aware React application

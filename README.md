@@ -21,6 +21,8 @@ Milestone 0 establishes:
 
 The domain workflows and final ERP interface are implemented in subsequent reviewable milestones. See [the delivery checklist](docs/milestones.md).
 
+Authentication is already implemented with Argon2 password hashes, revocable opaque bearer sessions, and backend-enforced permissions. See [the authorization model](docs/authorization.md).
+
 ## Quick start
 
 Prerequisites: Docker with Compose.
@@ -35,6 +37,20 @@ Then open:
 - web application: <http://localhost:3000>
 - API documentation: <http://localhost:8000/docs>
 - readiness probe: <http://localhost:8000/ready>
+
+Seed the deterministic local demo users:
+
+```bash
+docker compose exec backend python -m app.db.seed
+```
+
+| Role | Email | Local-only password |
+| --- | --- | --- |
+| Admin | `admin@demo.opsforge.dev` | `AdminDemo!2026` |
+| Operator | `operator@demo.opsforge.dev` | `OperatorDemo!2026` |
+| Support | `support@demo.opsforge.dev` | `SupportDemo!2026` |
+
+These credentials are fictional and intentionally limited to local seeded environments.
 
 Stop the stack without deleting persisted data:
 

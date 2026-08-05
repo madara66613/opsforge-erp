@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from pydantic import SecretStr
+from pydantic import SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -20,6 +20,16 @@ class Settings(BaseSettings):
     secret_key: SecretStr = SecretStr("replace-this-local-development-secret")
     cors_origins: str = "http://localhost:3000,http://localhost:5173"
     log_level: str = "INFO"
+    session_ttl_minutes: int = 480
+
+    @model_validator(mode="after")
+    def reject_default_secret_outside_local_environments(self) -> Settings:
+        if (
+            self.environment not in {"local", "test"}
+            and self.secret_key.get_secret_value() == "replace-this-local-development-secret"
+        ):
+            raise ValueError("OPSFORGE_SECRET_KEY must be changed outside local/test environments")
+        return self
 
     @property
     def cors_origin_list(self) -> list[str]:
